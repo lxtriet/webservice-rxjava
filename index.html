@@ -1,0 +1,95 @@
+<html>
+<head>
+<title>demo</title>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<script>
+    var io = io("http://localhost:3000/");
+    io.on("server-user-exist", function(){
+        alert("user exist");
+    })
+    io.on("server-create-success", function(data){
+        $("#create-user").hide(1000);
+        $("#chat-form").show(1000);
+        
+        $("#currentUser").text(data);
+    })
+    
+    io.on("server-update-message", function(data){
+        $("#message-area").append("<div id='msg'>"+data.user+": "+data.data+"</div>")
+    })
+
+    io.on("server-update-list-user", function(data){
+        $("#active-user-form").text("");
+        data.forEach(function(item) {
+            
+            if(item != $("#currentUser").text()){
+                $("#active-user-form").append("<div id='userActive'>"+item+"</div>")
+            }
+        });
+      
+    })
+</script>
+<script>
+    $(document).ready(function(){
+        $("#create-user").show(1000);
+        $("#chat-form").hide();
+        $("#btnCreate").click(function(){
+            io.emit("client-create-user",$("#nameUser").val());
+        })
+
+        $("#btnSend").click(function(){
+            if($("#txtMsg").val()!=""){
+                io.emit("client-send-message",$("#txtMsg").val());
+            }
+        })
+    });
+</script>
+<style>
+#chat-form{
+}
+#active-user-form{
+    min-height: 220px;
+    float: left;
+    min-width: 15%;
+    background-color:khaki;
+}
+#chat-frame{
+    float: inherit;
+    min-width: 300px;
+    background-color: aquamarine;
+}   
+#message-area{
+    min-height: 180px;
+
+}
+</style>
+</head>
+<body>
+    <div id="wrapper">
+       <div id="create-user">
+           <h3>What is your name?</h3>
+           <input type="text" id="nameUser">
+           <input type="button" value="ok" id="btnCreate">
+       </div>
+       <div id="chat-form">
+            <div id="active-user-form">
+               
+            </div>
+            <div id="chat-frame">
+                    
+                    <div id="message-area">
+                            <div>
+                                    <h3>Hello <span id="currentUser"></span></h3>
+                                        
+                                    </div>
+                    </div>
+                    <div id="input-form">
+                        <input type="text" id="txtMsg">
+                        <input type="button" value="Send" id="btnSend">
+                    </div>
+                </div>
+        </div>
+    </div>
+</body>
+</html>
